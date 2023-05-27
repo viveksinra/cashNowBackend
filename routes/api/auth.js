@@ -11,6 +11,8 @@ const axios = require("axios")
 // route to send otp
 // /api/auth/user/sendotp
 router.post('/user/sendotp',(req,res) => {
+console.log("post route called")
+
   res.json({
     message: "Otp Sent",
     variant: "success"
@@ -31,8 +33,9 @@ router.post('/user/sendotp',(req,res) => {
 })
 // /api/auth/user/sendotp
 router.get('/getdata',(req,res) => {
-  res.send("data received")
+console.log("get route called")
 
+  res.send("data received")
 
 })
 const getFOtp1 = (req,res,mNo) => {
