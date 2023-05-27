@@ -3,13 +3,18 @@ const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
   
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: "myUser",
+    required:true
+  },
   userName: {
     type: String,
     required: true
   },
   name: {
     type: String,
-    default:""
+    required: true
   },
   email: {
     type: String,
@@ -21,22 +26,18 @@ const UserSchema = new Schema({
   },
   address: {
     type: String,
-    default: ""
+    required: true
   },
-  designation: {
+  aadharCardNumber: {
     type: String,
     default: ""
   },
-  admin: {
-    type: Boolean,
-    default: false
-  },
-  collector: {
-    type: Boolean,
-    default: false
+  panCardNumber: {
+    type: String,
+    default: ""
   },
   dateOfBirth: {
-    type: Date
+    type: Date,
   },
   occupation: {
     type: String,
@@ -66,7 +67,25 @@ const UserSchema = new Schema({
       default: ""
     }
   },
- 
+  nomineeContact: {
+    name: {
+      type: String,
+      default: ""
+    },
+    mobileNumber: {
+      type: String,
+      default: ""
+    },
+    relationship: {
+      type: String,
+      default: ""
+    }
+  },
+  designation: {
+    type: String,
+    enum: ["customer", "admin", "collector"],
+    default: "customer"
+  },
   // Add more fields as needed
 
   date: {

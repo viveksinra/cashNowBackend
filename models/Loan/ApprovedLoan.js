@@ -1,4 +1,8 @@
 const ApprovedLoanSchema = new Schema({
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: "myUser"
+  },
     customer: {
         type: Schema.Types.ObjectId,
         ref: 'AddCustomer',

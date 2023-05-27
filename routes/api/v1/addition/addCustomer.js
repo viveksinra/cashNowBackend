@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const passport = require("passport");
 
-// Load AddCustomer Model
-const AddCustomer = require("../models/AddCustomer");
+// Load User Model
+const User = require("../../../../models/User");
 
 // @type    POST
 // @route   /api/v1/addition/addcustomer
@@ -10,45 +11,80 @@ const AddCustomer = require("../models/AddCustomer");
 // @access  Public
 router.post("/", passport.authenticate("jwt", { session: false }), async (req, res) => {
     var des = req.user.designation;
-    var des1 = "Admin";
-    var des2 = "Manager";
-  
+    var des1 = "admin";
+    var des2 = "manager";
+
     if (des == des1 || des == des2) {
       // Check if the required fields are present
-      if (!req.body.name || !req.body.phoneNumber || !req.body.address) {
+      if (!req.body.name || !req.body.mobileNumber || !req.body.address) {
         return res.json({
-          message: "Name, phoneNumber, and address are required fields.",
+          message: "Name, mobileNumber, and address are required fields.",
           variant: "error"
         });
       }
   
-      const newCustomer = new AddCustomer({
-        userName: req.body.userName || `${req.body.name}${req.body.phoneNumber}`,
-        name: req.body.name,
-        email: req.body.email,
-        phoneNumber: req.body.phoneNumber,
-        address: req.body.address,
-        aadharCardNumber: req.body.aadharCardNumber,
-        panCardNumber: req.body.panCardNumber,
-        dateOfBirth: req.body.dateOfBirth,
-        occupation: req.body.occupation,
-        gender: req.body.gender,
-        nationality: req.body.nationality,
-        maritalStatus: req.body.maritalStatus,
-        emergencyContact: {
-          name: req.body.emergencyContactName,
-          phoneNumber: req.body.emergencyContactPhoneNumber
-        },
-        nomineeContact: {
-          name: req.body.nomineeContact?.name || "",
-          phoneNumber: req.body.nomineeContact?.phoneNumber || "",
-          relationship: req.body.nomineeContact?.relationship || ""
-        }
+      const newCustomer = new User({
+        user:req.user.id,
+       userName: req.body.userName || `${req.body.name}${req.body.mobileNumber}`,
+       emergencyContact: {
+        name: req.body.emergencyContactName,
+        mobileNumber: req.body.emergencyContactPhoneNumber
+      },
+      nomineeContact: {
+        name: req.body.nomineeContact?.name || "",
+        mobileNumber: req.body.nomineeContact?.mobileNumber || "",
+        relationship: req.body.nomineeContact?.relationship || ""
+      }
       });
-  
+      if(req.body.name)newCustomer.name = req.body.name;
+      if (req.body.name) {
+        newCustomer.name = req.body.name;
+      }
+      
+      if (req.body.email) {
+        newCustomer.email = req.body.email;
+      }
+      
+      if (req.body.mobileNumber) {
+        newCustomer.mobileNumber = req.body.mobileNumber;
+      }
+      
+      if (req.body.address) {
+        newCustomer.address = req.body.address;
+      }
+      
+      if (req.body.aadharCardNumber) {
+        newCustomer.aadharCardNumber = req.body.aadharCardNumber;
+      }
+      
+      if (req.body.panCardNumber) {
+        newCustomer.panCardNumber = req.body.panCardNumber;
+      }
+      
+      if (req.body.dateOfBirth) {
+        newCustomer.dateOfBirth = req.body.dateOfBirth;
+      }
+      
+      if (req.body.occupation) {
+        newCustomer.occupation = req.body.occupation;
+      }
+      
+      if (req.body.gender) {
+        newCustomer.gender = req.body.gender;
+      }
+      
+      if (req.body.nationality) {
+        newCustomer.nationality = req.body.nationality;
+      }
+      
+      if (req.body.maritalStatus) {
+        newCustomer.maritalStatus = req.body.maritalStatus;
+      }
+      
+
       // Check if the username is already taken
       if (req.body.userName) {
-        const existingCustomer = await AddCustomer.findOne({ userName: req.body.userName });
+        const existingCustomer = await User.findOne({ userName: req.body.userName });
         if (existingCustomer) {
           return res.json({
             message: "Username is already taken. Please choose a different username.",
@@ -59,7 +95,10 @@ router.post("/", passport.authenticate("jwt", { session: false }), async (req, r
   
       newCustomer
         .save()
-        .then(customer => res.json(customer))
+        .then(() => {   return res.json({
+          message: "Customer Successfully added",
+          variant: "success"
+        });})
         .catch(err => console.log(err));
     } else {
       res.json({
@@ -74,8 +113,8 @@ router.post("/", passport.authenticate("jwt", { session: false }), async (req, r
 // @route   /api/v1/addition/addcustomer/:id
 // @desc    Get a customer by ID
 // @access  Public
-router.get("/:id", passport.authenticate("jwt", { session: false }), (req, res) => {
-  AddCustomer.findById(req.params.id)
+router.get("/getOne/:id", passport.authenticate("jwt", { session: false }), (req, res) => {
+  User.findById(req.params.id)
     .then(customer => {
       if (!customer) {
         return res.status(404).json({ message: "Customer not found" });
@@ -86,12 +125,12 @@ router.get("/:id", passport.authenticate("jwt", { session: false }), (req, res) 
 });
 
 // @type    GET
-// @route   /api/v1/addition/addcustomer
+// @route   /api/v1/addition/addcustomer/getall
 // @desc    Get all customers
 // @access  Public
-router.get("/", passport.authenticate("jwt", { session: false }), (req, res) => {
-  AddCustomer.find()
-    .then(customers => res.json(customers))
+router.get("/getAll", passport.authenticate("jwt", { session: false }), (req, res) => {
+  User.find({designation:"customer"})
+    .then(user => res.json(user))
     .catch(err => console.log(err));
 });
 
@@ -104,12 +143,12 @@ router.get("/getDataWithPage/:PageNumber", passport.authenticate("jwt", { sessio
     const limit = 10; // Number of records to retrieve per page
   
     // Retrieve customers with pagination
-    AddCustomer.find()
+    User.find()
       .skip((page - 1) * limit) // Skip the appropriate number of records based on the page number
       .limit(limit) // Limit the number of records to retrieve
       .then(customers => {
         // Calculate total count if it's the first page
-        const totalCountPromise = page === 1 ? AddCustomer.countDocuments() : Promise.resolve(0);
+        const totalCountPromise = page === 1 ? User.countDocuments() : Promise.resolve(0);
   
         // Respond with customers and total count
         Promise.all([totalCountPromise, customers])
@@ -138,7 +177,7 @@ router.get("/getDataWithPage/:PageNumber", passport.authenticate("jwt", { sessio
 // @desc    Update a customer by ID
 // @access  Public
 router.put("/:id", passport.authenticate("jwt", { session: false }), (req, res) => {
-  AddCustomer.findByIdAndUpdate(req.params.id, req.body, { new: true })
+  User.findByIdAndUpdate(req.params.id, req.body, { new: true })
     .then(customer => {
       if (!customer) {
         return res.status(404).json({ message: "Customer not found" });
@@ -153,8 +192,8 @@ router.put("/:id", passport.authenticate("jwt", { session: false }), (req, res) 
 // @route   /api/v1/addition/addcustomer/:id
 // @desc    Delete a customer by ID
 // @access  Public
-router.delete("/:id", passport.authenticate("jwt", { session: false }), (req, res) => {
-  AddCustomer.findByIdAndRemove(req.params.id)
+router.delete("/deleteOne/:id", passport.authenticate("jwt", { session: false }), (req, res) => {
+  User.findByIdAndRemove(req.params.id)
     .then(customer => {
       if (!customer) {
         return res.status(404).json({ message: "Customer not found" });

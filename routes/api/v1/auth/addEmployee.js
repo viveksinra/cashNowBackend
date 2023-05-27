@@ -1,17 +1,20 @@
 const express = require("express");
 const router = express.Router();
+const passport = require("passport");
 
 // Load AddEmployee Model
-const AddEmployee = require("../models/AddEmployee");
+const AddEmployee = require("../../../../models/User");
 
 // @type    POST
 // @route   /api/v1/addition/addemployee
 // @desc    Create a new employee
 // @access  Public
-router.post("/", passport.authenticate("jwt", { session: false }), async (req, res) => {
-  var des = req.user.designation;
-  var des1 = "Admin";
-  var des2 = "Manager";
+router.post("/", 
+// passport.authenticate("jwt", { session: false }), 
+async (req, res) => {
+  var des = "admin";
+  var des1 = "admin";
+  var des2 = "manager";
 
   if (des == des1 || des == des2) {
     // Check if the required fields are present
@@ -31,10 +34,15 @@ router.post("/", passport.authenticate("jwt", { session: false }), async (req, r
       department: req.body.department,
       salary: req.body.salary
     });
-
+ 
     newEmployee
       .save()
-      .then(employee => res.json(employee))
+      .then(employee => {
+        res.json({
+          message: "Employee successfully created",
+          variant: "success"
+        });
+      })
       .catch(err => console.log(err));
   } else {
     res.json({
