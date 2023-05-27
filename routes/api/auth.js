@@ -29,6 +29,12 @@ router.post('/user/sendotp',(req,res) => {
   // })
 
 })
+// /api/auth/user/sendotp
+router.get('/getdata',(req,res) => {
+  res.send("data received")
+
+
+})
 const getFOtp1 = (req,res,mNo) => {
   // funtion to send otp
   const auKey = process.env.AUTH_KEY
