@@ -1,42 +1,37 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const UserSchema = new Schema({
-  
+const AddCustomerSchema = new Schema({
   userName: {
     type: String,
     required: true
   },
   name: {
     type: String,
-    default:""
+    required: true
   },
   email: {
     type: String,
     default: ""
   },
-  mobileNumber: {
+  phoneNumber: {
     type: String,
     required: true
   },
   address: {
     type: String,
-    default: ""
+    required: true
   },
-  designation: {
+  aadharCardNumber: {
     type: String,
     default: ""
   },
-  admin: {
-    type: Boolean,
-    default: false
-  },
-  collector: {
-    type: Boolean,
-    default: false
+  panCardNumber: {
+    type: String,
+    default: ""
   },
   dateOfBirth: {
-    type: Date
+    type: Date,
   },
   occupation: {
     type: String,
@@ -61,12 +56,25 @@ const UserSchema = new Schema({
       type: String,
       default: ""
     },
-    mobileNumber: {
+    phoneNumber: {
       type: String,
       default: ""
     }
   },
- 
+  nomineeContact: {
+    name: {
+      type: String,
+      default: ""
+    },
+    phoneNumber: {
+      type: String,
+      default: ""
+    },
+    relationship: {
+      type: String,
+      default: ""
+    }
+  },
   // Add more fields as needed
 
   date: {
@@ -75,8 +83,4 @@ const UserSchema = new Schema({
   }
 });
 
-module.exports = User = mongoose.model("myUser", UserSchema);
-
-
-
-
+module.exports = AddCustomer = mongoose.model("myAddCustomer", AddCustomerSchema);

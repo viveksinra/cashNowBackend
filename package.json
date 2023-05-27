@@ -1,5 +1,5 @@
 {
-  "name": "cashNowBackend",
+  "name": "cashnowbackend",
   "version": "1.0.0",
   "description": "A Call center CRM dashboard for Insurance Company dfeveloped by Softechinfra",
   "main": "server.js",

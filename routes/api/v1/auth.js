@@ -3,9 +3,9 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jsonwt = require("jsonwebtoken");
 const passport = require("passport");
-const key = require("../../setup/myurl");
+const key = require("../../../setup/myurl");
 const jwt_decode = require("jwt-decode");
-const User = require("../../models/User")
+const User = require("../../../models/User")
 const axios = require("axios")
 
 // route to send otp
