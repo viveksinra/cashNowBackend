@@ -17,7 +17,7 @@ router.post("/", passport.authenticate("jwt", { session: false }), async (req, r
     if (des == des1 || des == des2) {
       // Check if the required fields are present
       if (!req.body.name || !req.body.mobileNumber || !req.body.address) {
-        return res.json({
+        return res.status(201).json({
           message: "Name, mobileNumber, and address are required fields.",
           variant: "error"
         });
@@ -103,13 +103,13 @@ router.post("/", passport.authenticate("jwt", { session: false }), async (req, r
         const existingUserName = await User.findOne({ userName: req.body.userName });
         const existingMobile = await User.findOne({ userName: req.body.userName });
         if(existingMobile){
-          res.json({
+          res.status(201).json({
             message: "Mobile Number is already used. Please choose a different number.",
             variant: "error"
           });
         
         }else  if (existingUserName) {
-           res.json({
+           res.status(201).json({
             message: "Username is already taken. Please choose a different username.",
             variant: "error"
           });
@@ -118,7 +118,7 @@ router.post("/", passport.authenticate("jwt", { session: false }), async (req, r
           newCustomer
           .save()
           .then(() => {   
-           res.json({
+           res.status(200).json({
             message: "Customer Successfully added",
             variant: "success"
           });})
@@ -128,7 +128,7 @@ router.post("/", passport.authenticate("jwt", { session: false }), async (req, r
   
 
     } else {
-      res.json({
+      res.status(401).json({
         message: "You are not authorized.",
         variant: "error"
       });
@@ -146,7 +146,7 @@ router.get("/getOne/:id", passport.authenticate("jwt", { session: false }), (req
       if (!customer) {
          res.status(404).json({ message: "Customer not found" });
       }
-      res.json(customer);
+      res.status(200).json(customer);
     })
     .catch(err => console.log(err));
 });
@@ -157,7 +157,7 @@ router.get("/getOne/:id", passport.authenticate("jwt", { session: false }), (req
 // @access  Public
 router.get("/getAll", passport.authenticate("jwt", { session: false }), (req, res) => {
   User.find({designation:"customer"})
-    .then(user => res.json(user))
+    .then(user => res.status(200).json(user))
     .catch(err => console.log(err));
 });
 
@@ -185,7 +185,7 @@ router.get("/getDataWithPage/:PageNumber", passport.authenticate("jwt", { sessio
               totalCount: totalCount || customers.length, // Use totalCount if available, otherwise use the length of customers
               customers
             };
-            res.json(response);
+            res.status(200).json(response);
           })
           .catch(err => {
             console.log(err);
@@ -214,10 +214,10 @@ async function updateMe(req,res,updateCustomer){
   )
     .then(user => {
       if (user){
-        res.json({ message: "Updated successfully!!", variant: "success" })
+        res.status(200).json({ message: "Updated successfully!!", variant: "success" })
 
       } else {
-        res.json({ message: "Id not found", variant: "error" })
+        res.status(401).json({ message: "Id not found", variant: "error" })
 
       }
     }        
@@ -323,18 +323,18 @@ router.post(
         const existingMobile = await User.findOne({ mobileNumber: req.body.mobileNumber });
         const existingEmail = await User.findOne({ email: req.body.email });
         if(existingMobile && (req.body.mobileNumber != req.user.mobileNumber)){
-          res.json({
+          res.status(401).json({
             message: "Mobile Number is already used. Please choose a different number.",
             variant: "error"
           });
         
         }else  if (existingEmail && (req.body.email != req.user.email)) {
-          res.json({
+          res.status(401).json({
            message: "Email is already taken. Please choose a different Email.",
            variant: "error"
          });
         }else if (existingUserName && (req.body.userName != req.user.userName)) {
-           res.json({
+           res.status(401).json({
             message: "Username is already taken. Please choose a different username.",
             variant: "error"
           });
@@ -346,7 +346,7 @@ router.post(
   
 
     } else {
-      res.json({
+      res.status(401).json({
         message: "You are not authorized.",
         variant: "error"
       });
@@ -373,13 +373,13 @@ router.get(
         designation:"customer",
         name: new RegExp(search, "i")
       })
-      .then(User => res.json(User)).catch(err => res.json({message: "Problem in Searching" + err, variant: "success"}));
+      .then(User => res.status(200).json(User)).catch(err => res.status(401).json({message: "Problem in Searching" + err, variant: "success"}));
       
    
     } 
 
   } else {
-    res.json({ message: "You are not Authorised", variant: "error" })
+    res.status(401).json({ message: "You are not Authorised", variant: "error" })
   }
 
   });
@@ -394,7 +394,7 @@ router.delete("/deleteOne/:id", passport.authenticate("jwt", { session: false })
       if (!customer) {
         return res.status(404).json({ message: "Customer not found" });
       }
-      res.json({ message: "Customer deleted successfully" });
+      res.status(200).json({ message: "Customer deleted successfully" });
     })
     .catch(err => console.log(err));
 });
