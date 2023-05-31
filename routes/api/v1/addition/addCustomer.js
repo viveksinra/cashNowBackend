@@ -233,7 +233,7 @@ async function updateMe(req,res,updateCustomer){
 }
 
 router.post(
-  "/:id",
+  "/update/:id",
   passport.authenticate("jwt", { session: false }),
   async(req, res) => {
     var des = req.user.designation;
