@@ -25,17 +25,33 @@ router.post("/", passport.authenticate("jwt", { session: false }), async (req, r
   
       const newCustomer = new User({
         user:req.user.id,
+        designation:"customer",
        userName: req.body.userName || `${req.body.name}${req.body.mobileNumber}`,
-       emergencyContact: {
-        name: req.body.emergencyContactName,
-        mobileNumber: req.body.emergencyContactPhoneNumber
-      },
-      nomineeContact: {
-        name: req.body.nomineeContact?.name || "",
-        mobileNumber: req.body.nomineeContact?.mobileNumber || "",
-        relationship: req.body.nomineeContact?.relationship || ""
-      }
+
       });
+      if (req.body.emergencyContact) {
+        newCustomer.emergencyContact = newCustomer.emergencyContact || {};
+        if (req.body.emergencyContact.name) {
+          newCustomer.emergencyContact.name = req.body.emergencyContact.name;
+        }
+        if (req.body.emergencyContact.mobileNumber) {
+          newCustomer.emergencyContact.mobileNumber = req.body.emergencyContact.mobileNumber;
+        }
+      }
+      
+      if (req.body.nomineeContact) {
+        newCustomer.nomineeContact = newCustomer.nomineeContact || {};
+        if (req.body.nomineeContact.name) {
+          newCustomer.nomineeContact.name = req.body.nomineeContact.name;
+        }
+        if (req.body.nomineeContact.mobileNumber) {
+          newCustomer.nomineeContact.mobileNumber = req.body.nomineeContact.mobileNumber;
+        }
+        if (req.body.nomineeContact.relationship) {
+          newCustomer.nomineeContact.relationship = req.body.nomineeContact.relationship;
+        }
+      }
+      
       if(req.body.name)newCustomer.name = req.body.name;
       if (req.body.name) {
         newCustomer.name = req.body.name;
@@ -84,22 +100,33 @@ router.post("/", passport.authenticate("jwt", { session: false }), async (req, r
 
       // Check if the username is already taken
       if (req.body.userName) {
-        const existingCustomer = await User.findOne({ userName: req.body.userName });
-        if (existingCustomer) {
-          return res.json({
+        const existingUserName = await User.findOne({ userName: req.body.userName });
+        const existingMobile = await User.findOne({ userName: req.body.userName });
+        if(existingMobile){
+          res.json({
+            message: "Mobile Number is already used. Please choose a different number.",
+            variant: "error"
+          });
+        
+        }else  if (existingUserName) {
+           res.json({
             message: "Username is already taken. Please choose a different username.",
             variant: "error"
           });
+         }else {
+          
+          newCustomer
+          .save()
+          .then(() => {   
+           res.json({
+            message: "Customer Successfully added",
+            variant: "success"
+          });})
+          .catch(err => console.log(err));
         }
       }
   
-      newCustomer
-        .save()
-        .then(() => {   return res.json({
-          message: "Customer Successfully added",
-          variant: "success"
-        });})
-        .catch(err => console.log(err));
+
     } else {
       res.json({
         message: "You are not authorized.",
@@ -117,7 +144,7 @@ router.get("/getOne/:id", passport.authenticate("jwt", { session: false }), (req
   User.findById(req.params.id)
     .then(customer => {
       if (!customer) {
-        return res.status(404).json({ message: "Customer not found" });
+         res.status(404).json({ message: "Customer not found" });
       }
       res.json(customer);
     })
@@ -176,17 +203,186 @@ router.get("/getDataWithPage/:PageNumber", passport.authenticate("jwt", { sessio
 // @route   /api/v1/addition/addcustomer/:id
 // @desc    Update a customer by ID
 // @access  Public
-router.put("/:id", passport.authenticate("jwt", { session: false }), (req, res) => {
-  User.findByIdAndUpdate(req.params.id, req.body, { new: true })
-    .then(customer => {
-      if (!customer) {
-        return res.status(404).json({ message: "Customer not found" });
-      }
-      res.json(customer);
-    })
-    .catch(err => console.log(err));
-});
+// @type    POST
 
+async function updateMe(req,res,updateCustomer){
+
+  User.findOneAndUpdate(
+    { _id: req.params.id },
+    { $set: updateCustomer },
+    { new: true }
+  )
+    .then(user => {
+      if (user){
+        res.json({ message: "Updated successfully!!", variant: "success" })
+
+      } else {
+        res.json({ message: "Id not found", variant: "error" })
+
+      }
+    }        
+    )
+
+    .catch(err =>
+      console.log("Problem in updating user value" + err)
+    );
+
+
+
+
+}
+
+router.post(
+  "/:id",
+  passport.authenticate("jwt", { session: false }),
+  async(req, res) => {
+    var des = req.user.designation;
+    var des1 = "admin";
+    var des2 = "manager";
+
+    if (des == des1 || des == des2) {
+ 
+  
+      const newCustomer = {
+        user:req.user.id,
+        emergencyContact:{},
+        nomineeContact:{}
+      };
+
+      if (req.body.emergencyContact) {
+        if (req.body.emergencyContact.name) {
+          newCustomer.emergencyContact.name = req.body.emergencyContact.name;
+        }
+        if (req.body.emergencyContact.mobileNumber) {
+          newCustomer.emergencyContact.mobileNumber = req.body.emergencyContact.mobileNumber;
+        }
+      }
+      
+      if (req.body.nomineeContact) {
+        if (req.body.nomineeContact.name) {
+          newCustomer.nomineeContact.name = req.body.nomineeContact.name;
+        }
+        if (req.body.nomineeContact.mobileNumber) {
+          newCustomer.nomineeContact.mobileNumber = req.body.nomineeContact.mobileNumber;
+        }
+        if (req.body.nomineeContact.relationship) {
+          newCustomer.nomineeContact.relationship = req.body.nomineeContact.relationship;
+        }
+      }
+      
+      if(req.body.userName){
+        newCustomer.userName= req.body.userName} ;
+      if (req.body.name) {
+        newCustomer.name = req.body.name;
+      }
+      
+      if (req.body.email) {
+        newCustomer.email = req.body.email;
+      }
+      
+      if (req.body.mobileNumber) {
+        newCustomer.mobileNumber = req.body.mobileNumber;
+      }
+      
+      if (req.body.address) {
+        newCustomer.address = req.body.address;
+      }
+      
+      if (req.body.aadharCardNumber) {
+        newCustomer.aadharCardNumber = req.body.aadharCardNumber;
+      }
+      
+      if (req.body.panCardNumber) {
+        newCustomer.panCardNumber = req.body.panCardNumber;
+      }
+      
+      if (req.body.dateOfBirth) {
+        newCustomer.dateOfBirth = req.body.dateOfBirth;
+      }
+      
+      if (req.body.occupation) {
+        newCustomer.occupation = req.body.occupation;
+      }
+      
+      if (req.body.gender) {
+        newCustomer.gender = req.body.gender;
+      }
+      
+      if (req.body.nationality) {
+        newCustomer.nationality = req.body.nationality;
+      }
+      
+      if (req.body.maritalStatus) {
+        newCustomer.maritalStatus = req.body.maritalStatus;
+      }
+      
+
+      // Check if the username is already taken
+      if (req.body.userName) {
+        const existingUserName = await User.findOne({ userName: req.body.userName });
+        const existingMobile = await User.findOne({ mobileNumber: req.body.mobileNumber });
+        const existingEmail = await User.findOne({ email: req.body.email });
+        if(existingMobile && (req.body.mobileNumber != req.user.mobileNumber)){
+          res.json({
+            message: "Mobile Number is already used. Please choose a different number.",
+            variant: "error"
+          });
+        
+        }else  if (existingEmail && (req.body.email != req.user.email)) {
+          res.json({
+           message: "Email is already taken. Please choose a different Email.",
+           variant: "error"
+         });
+        }else if (existingUserName && (req.body.userName != req.user.userName)) {
+           res.json({
+            message: "Username is already taken. Please choose a different username.",
+            variant: "error"
+          });
+         }else {
+          updateMe(req,res,newCustomer)
+    
+        }
+      }
+  
+
+    } else {
+      res.json({
+        message: "You are not authorized.",
+        variant: "error"
+      });
+    }
+
+  }
+);
+// @type    GET
+//@route    /api/v1/addition/addcustomer/getall/:searchCustomer
+// @desc    route for searching of user from searchbox using any text
+// @access  PRIVATE
+router.get(
+  "/getall/:searchCustomer",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    var des = req.user.designation;
+    var des1 = "admin";
+    var des2 = "manager";
+    const search = req.params.searchCustomer;
+
+    if (des == des1 || des == des2  ) {
+    if (isNaN(search)) {
+      User.find({
+        designation:"customer",
+        name: new RegExp(search, "i")
+      })
+      .then(User => res.json(User)).catch(err => res.json({message: "Problem in Searching" + err, variant: "success"}));
+      
+   
+    } 
+
+  } else {
+    res.json({ message: "You are not Authorised", variant: "error" })
+  }
+
+  });
 
 // @type    DELETE
 // @route   /api/v1/addition/addcustomer/:id
