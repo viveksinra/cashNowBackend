@@ -101,7 +101,7 @@ router.post("/", passport.authenticate("jwt", { session: false }), async (req, r
       // Check if the username is already taken
       if (req.body.userName) {
         const existingUserName = await User.findOne({ userName: req.body.userName });
-        const existingMobile = await User.findOne({ userName: req.body.userName });
+        const existingMobile = await User.findOne({ mobileNumber: req.body.mobileNumber });
         if(existingMobile){
           res.status(201).json({
             message: "Mobile Number is already used. Please choose a different number.",

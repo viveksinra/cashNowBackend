@@ -21,6 +21,10 @@ const ApprovedLoanSchema = new Schema({
         type: Number,
         required: true
       },
+      totalEmi:{
+        type: Number,
+        required: true
+      },
       emiFrequency: {
         type: String,
         enum: ['Daily', 'Weekly', 'Monthly'],

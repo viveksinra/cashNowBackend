@@ -4,10 +4,17 @@ const LoanRequestSchema = new Schema({
     ref: "myUser"
   },
     customer: {
-      type: Schema.Types.ObjectId,
-      ref: 'AddCustomer',
+      name:{
+        type: String,
+      default: 'name',
       required: true
-    },
+      },
+      id: {
+      type: Schema.Types.ObjectId,
+      ref: 'myUser',
+      required: true
+    }
+  },
     referredBy: {
       type: String,
       default: ''
@@ -20,10 +27,14 @@ const LoanRequestSchema = new Schema({
       type: Number,
       required: true
     },
+    totalEmi:{
+      type: Number,
+      required: true
+    },
     emiFrequency: {
       type: String,
-      enum: ['Daily', 'Weekly', 'Monthly'],
-      default: 'Daily'
+      enum: ['daily', 'weekly', 'monthly'],
+      default: 'daily'
     },
     requestedDate: {
       type: Date,
@@ -35,8 +46,22 @@ const LoanRequestSchema = new Schema({
     },
     status: {
       type: String,
-      enum: ['Pending', 'Approved', 'Rejected'],
-      default: 'Pending'
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending'
+    },
+    nomineeContact: {
+      name: {
+        type: String,
+        default: ""
+      },
+      mobileNumber: {
+        type: String,
+        default: ""
+      },
+      relationship: {
+        type: String,
+        default: ""
+      }
     },
     // Add any other fields you require
   
